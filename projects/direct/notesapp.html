@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="color-scheme" content="dark only">
+  <title>Notes</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+    
+    :root {
+      --dark: #0F150D;
+      --neutral: #1C211A;
+      --light: #C2C8BD;
+      --extralight: #FFFFFFEE;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      color: var(--light);
+      font-family: "Inter", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 500;
+      font-style: normal;
+    }
+    
+    html {
+      font-size: 13px;
+    }
+    
+    * {
+      font-size: 1rem;
+    }
+    
+    i {
+      font-size: 2.1rem;
+    }
+    
+    body {
+      background: var(--neutral);
+    }
+    
+    .notch {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.75rem 0;
+    }
+    
+    .notch h2 {
+      font-weight: 600;
+      color: var(--extralight);
+      font-size: 1.5rem;
+    }
+    
+    
+    .notch .logo {
+      height: 2rem;
+      width: 2rem;
+      background: #8B91D2;
+      border-radius: 200px;
+      position: absolute;
+      right: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    nav {
+      display: flex;
+      align-items: center;
+      padding: 0 .5rem;
+      position: sticky;
+      top: 0;
+      border-bottom: 1px #FFFFFF50 solid;
+    }
+    
+    nav ul {
+      display: flex;
+      align-items: center;
+    }
+    
+    nav ul li {
+      list-style: none;
+      font-size: 1rem;
+      padding: 1.2rem 1.2rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    nav .opt2 {
+      border-bottom: solid 3px #7CC055;
+      color: #75CC43;
+    }
+    
+    .new {
+      height: 4.75rem;
+      width: 4.75rem;
+      border-radius: 17.5px;
+      background: #1B510D;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2.5rem;
+      font-weight: 300;
+      padding: 0;
+      position: fixed;
+      bottom: 4rem;
+      right: 2rem;
+    }
+    
+    .notespace {
+      padding: 1rem;
+    }
+    
+    .mynotes {
+      display: flex;
+      flex-direction: column;
+      background: var(--dark);
+      padding: 1rem;
+      border-radius: 20px;
+    }
+    
+    .mynotes .mynotesnav {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .mynotes .mynotesnav ul {
+      display: flex;
+      align-items: center;
+    }
+    
+    .mynotes .mynotesnav h2,
+    .mynotes .mynotesnav ul li i {
+      color: #FFFFFF;
+    }
+    
+    .mynotes .mynotesnav h2 {
+      padding: .2rem;
+      font-size: 1.2rem;
+    }
+    
+    .mynotes .mynotesnav ul li {
+      list-style: none;
+      padding: .25rem;
+    }
+    
+    .mynotes .mynotesnav ul li button {
+      background: none;
+      font-size: 1.2rem;
+      padding: .3rem .5rem;
+      border: none;
+    }
+    
+    
+    .notes {
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+    }
+    
+    .notes ul {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .notes ul li {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      column-gap: 1rem;
+      padding: .5rem;
+    }
+    
+    .promptsec {
+      position: fixed;
+      inset: auto 0 0 0;
+      background: var(--dark);
+      display: none;
+      justify-content: space-around;
+      align-items: center;
+      padding: 2rem 1rem 5rem 1rem;
+      border-radius: 25px 25px 0 0;
+    }
+    
+    .promptsec input {
+      width: 70%;
+      background: none;
+      padding: .5rem;
+      outline: none;
+      border: none;
+      font-size: 1.2rem;
+    }
+    
+    .promptsec button {
+      
+      border: none;
+      outline: none;
+      
+      background: none;
+    }
+    
+    .promptsec button i {
+      height: 1rem;
+      width: 2rem;
+      color: white;
+    }
+    
+    .nwt {
+      color: white;
+    }
+    
+    .bi-arrow-up {
+      margin-right: 1.5rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="notch">
+    <h2>Notes</h2>
+    <div class="logo">A</div>
+  </div>
+  <nav>
+    <ul>
+      <li><i class="bi bi-star-fill" style="font-size: 1.5rem;"></i></li>
+      <li class="opt2">My notes</li>
+      <li><i class="bi bi-plus"></i> New list</li>
+    </ul>
+  </nav>
+  <div class="notespace">
+    <div class="mynotes">
+      <div class="mynotesnav">
+        <h2>My Notes</h2>
+        <ul>
+          <li id="dlto" onclick="deletee('dlt')"><button>Delete</button></li>
+          <li id="dlts" onclick="deletee('re')" style="display: none;"><button>Don't want to?</button></li>
+          <li><button onclick="clearlist()">Clear list</button></li>
+        </ul>
+      </div>
+      
+      <div class="notes">
+        <li id="deletetxt" style="color: red; display:none; padding-bottom: 1rem"> Please tap on the note you want to delete</li>
+        <ul id="stuff">
+          
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="new" onclick="prompton('on')"><i class="bi bi-plus"></i></div>
+  <div class="promptsec"><input type="text" placeholder="Add Note" id="prompt"><button><i class="bi bi-arrow-up" onclick="addnotes()"></i><i class="bi bi-x" onclick="prompton('off')"></i></button></div>
+  <script>
+    let ta = document.querySelector('p');
+    let promptsec = document.querySelector('.promptsec');
+    
+    function cut(e) {
+      e.target.style.setProperty('text-decoration', 'line-through')
+    }
+    
+    function prompton(fig) {
+      if (fig == 'on') {
+        promptsec.style.display = 'flex';
+      }
+      else {
+        promptsec.style.display = 'none';
+      }
+    }
+    if (JSON.parse(localStorage.getItem('notes') == null)) {
+      localStorage.setItem('notes', JSON.stringify([]))
+    }
+    
+    let localnote = JSON.parse(localStorage.getItem('notes'))
+    
+    function display() {
+      let localnote = JSON.parse(localStorage.getItem('notes'))
+      let items = localnote;
+      const ar = document.getElementById('stuff');
+      ar.innerHTML = ' ';
+      let indx = 1;
+      items.forEach((a) => {
+        ar.innerHTML += `
+<li class='nwt'>${indx}. ${a}</li>
+`
+        indx = indx + 1;
+      })
+    }
+    
+    function addnotes() {
+      let localnote = JSON.parse(localStorage.getItem('notes'))
+      
+      let promptinput = document.querySelector('#prompt')
+      let x = localnote;
+      x.push(`${promptinput.value} `)
+      localStorage.setItem('notes', JSON.stringify(x))
+      display()
+      promptinput.value = ''
+      promptsec.style.display = 'none'
+    }
+    
+    function removenotes(e) {
+      let localnote = JSON.parse(localStorage.getItem('notes'))
+      
+      let nme = e.target.innerHTML.slice(3);
+      let y = localnote;
+      let z = y.filter(fl => fl !== nme)
+      localStorage.setItem('notes', JSON.stringify(z))
+      let dlttxt = document.getElementById('deletetxt');
+      dlttxt.style.display = 'none'
+      let dlto = document.querySelector('#dlto')
+      let dlts = document.querySelector('#dlts')
+      dlto.style.display = 'block'
+      dlts.style.display = 'none'
+      display()
+    }
+    
+    function deletee(w) {
+      if (w == 'dlt') {
+        let nwt = document.querySelectorAll('.nwt');
+        nwt.forEach(element => {
+          element.addEventListener('click', removenotes);
+          
+        });
+        let dlto = document.querySelector('#dlto')
+        let dlts = document.querySelector('#dlts')
+        dlto.style.display = 'none'
+        dlts.style.display = 'block'
+        
+        let dlttxt = document.getElementById('deletetxt');
+        dlttxt.style.display = 'flex'
+      } else {
+        let nwt = document.querySelectorAll('.nwt');
+        nwt.forEach(element => {
+          element.addEventListener('click', () => {});
+          
+        });
+        let dlto = document.querySelector('#dlto')
+        let dlts = document.querySelector('#dlts')
+        dlto.style.display = 'block'
+        dlts.style.display = 'none'
+        
+        let dlttxt = document.getElementById('deletetxt');
+        dlttxt.style.display = 'none'
+      }
+      
+    }
+    
+    
+    
+    function clearlist() {
+      let empty = []
+      localStorage.setItem('notes', JSON.stringify(empty))
+      display()
+    }
+    display()
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="color-scheme" content="light only">
+  <title>Google Sheets</title>
+  <style type="text/css" media="all">
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background: antiquewhite;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .page {
+      height: 190px;
+      width: 135px;
+      background: #FFA900;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      position: absolute;
+    }
+    
+    .corner {
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 3;
+      height: 40px;
+      width: 40px;
+      background: #E5730090;
+      border-radius: 5px;
+    }
+    
+    .replica {
+      position: absolute;
+      top: -29px;
+      right: -29px;
+      z-index: 4;
+      height: 56.5685px;
+      width: 56.5685px;
+      transform: rotate(45deg);
+      background: antiquewhite;
+    }
+    
+    .line {
+      position: relative;
+      top: 5px;
+      height: 40px;
+      width: 65px;
+      border: 7.5px solid white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="corner"></div>
+    <div class="replica"></div>
+    <div class="line"></div>
+  </div>
+</body>
+
+</html>

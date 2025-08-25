@@ -1,0 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@import url("roots/root.css");
+
+header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 75dvh;
+  border-bottom: 1px solid var(--border);
+  background: var(--headerbg);
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+header h2 {
+  text-align: left;
+  background: #00000016;
+  padding: 1.5rem;
+}
+
+header h2 p {
+  font-weight: 600;
+  font-size: 2.5rem;
+  word-spacing: 1rem;
+  
+}
+
+header .btns {
+  padding: .5rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+header .btns button {
+  background: #ffffff66;
+  margin: 1rem .5rem;
+  padding: .5rem 1rem;
+  border-radius: .75rem;
+  color: black;
+  border: 3px #00000066 solid;
+  font-size: 1rem;
+}
+
+.aboutheading,
+.contactheading,
+.projectheading {
+  margin: 1.3rem 1.5rem;
+  border-bottom: 2px solid var(--borderd);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.aboutheading h2 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  padding: .2rem;
+}
+
+.aboutheading p a,
+.projectheading p a {
+  text-decoration: none;
+}
+
+.aboutsec {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  animation: scrollani 5s linear;
+  animation-timeline: view();
+  animation-range: entry 0% cover 40%;
+}
+
+.aboutsec div h1 {
+  font-size: 2.25rem;
+}
+
+.aboutsec div p {
+  font-size: 1.1rem;
+}
+
+.aboutsec img {
+  border-radius: 1rem;
+  margin: 0 0 2rem 0;
+  animation: scrollani 5s linear;
+  animation-timeline: view();
+  animation-range: entry 0% cover 45%;
+}
+
+.projectssec {
+  display: flex;
+  background: var(--shade3);
+  flex-direction: column;
+}
+
+.projectheading {
+  border-bottom: white 2px;
+}
+
+.projectheading h2 {
+  color: white;
+}
+
+.projectheading p a {
+  color: white
+}
+
+.projectssec .carousel {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  overflow-x: scroll;
+  padding: 1rem;
+  gap: 1rem;
+  scroll-snap-type: x proximity;
+}
+
+
+.projectssec .project {
+  scroll-snap-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-shrink: 0;
+  padding: 1rem;
+  border-radius: 1.5rem;
+  background: #42445A;
+  width: 19rem;
+}
+
+.projectssec .project img {
+  width: 50%;
+  border-radius: 1.5rem;
+  height: fit-content;
+}
+
+
+.projectssec .project .description {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: .85rem;
+}
+
+.projectssec .project .description h4 {
+  font-size: 1.3rem;
+  color: #ffffff;
+}
+
+.projectssec .project .description p {
+  font-size: .9rem;
+  color: #ffffffCC;
+}
+
+.project:hover {
+  transform: scale(1.05);
+}
+
+footer {
+  background: var(--shade2);
+  padding: .25rem 0;
+}
+
+footer .contactoptions {
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  animation: scrollani 5s linear;
+  animation-timeline: view();
+  animation-range: entry 0%;
+}
+
+footer .contactoptions p {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+footer .contactoptions .coption {
+  padding-left: 1rem;
+  padding-top: .3rem;
+  padding-bottom: .3rem;
+}
+
+footer .contactoptions .coption ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-evenly;
+}
+
+footer .contactoptions .coption ul li {
+  padding: .4rem;
+}
+
+footer .contactoptions .coption ul li a {
+  text-decoration: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+footer .contactoptions .coption ul li a i {
+  font-size: 1.3rem;
+  margin-right: .5rem;
+}
+
+
+@media only screen and (min-width: 768px) {
+  header h2 {
+    text-align: center;
+  }
+  
+  header .btns {
+    justify-content: center;
+  }
+  
+  .aboutsec {
+    
+    flex-direction: row;
+  }
+  
+  .aboutsec img {
+    margin: 0 2rem 0 0;
+    width: 45%;
+    height: fit-content;
+    
+  }
+  
+  footer .contactoptions {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  footer .contactoptions p {
+    justify-content: center;
+  }
+  
+  footer .contactoptions .coption ul {
+    flex-direction: row;
+    align-items: center;
+  }
+}

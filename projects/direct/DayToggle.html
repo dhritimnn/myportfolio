@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="color-scheme" content="light only">
+  <title>Theme</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      
+    }
+    
+    body {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #2C3E50;
+      transition: all .5s;
+      
+    }
+    
+    .parent {
+      height: 230px;
+      width: 210px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #2C3E50;
+      position: absolute;
+      transition: all .5s;
+    }
+    
+    .btn {
+      border: 3px solid #FFFFFF;
+      background: rgba(87, 92, 137, .2);
+      border-radius: 200px;
+      position: relative;
+      height: 100px;
+      width: 200px;
+    }
+    
+    
+    .circle {
+      height: 77px;
+      width: 77px;
+      background: rgba(255, 255, 255, .3);
+      border: 5px solid white;
+      border-radius: 200px;
+      position: absolute;
+      top: 7.5px;
+      left: 7.5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 13px;
+      font-family: sans-serif;
+    }
+    
+    .check {
+      opacity: 0%;
+      height: 100px;
+      width: 200px;
+    }
+    
+    .uds {
+      position: absolute;
+      bottom: 0;
+      width: 200px;
+      height: 60px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    
+    .day,
+    .night {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 200px;
+      transition: all .2s;
+    }
+    
+    .day {
+      background: rgba(255, 236, 77, 1);
+      opacity: 0%;
+    }
+    
+    .night {
+      background: white;
+      translate: 0 -85px;
+      mask-image:
+        radial-gradient(circle at 70% 30%, black 45%, transparent 0%),
+        radial-gradient(circle at center, black 100%, black 100%);
+      mask-composite: exclude;
+      border: none;
+      outline: none;
+      
+    }
+    
+    /*animations*/
+    @keyframes ltrcircle {
+      0% {
+        translate: 0 0;
+        background: rgba(255, 255, 255, .3);
+        
+      }
+      
+      100% {
+        translate: 97.5px 0;
+        background: rgba(0, 0, 0, .3);
+        
+      }
+    }
+    
+    @keyframes rtlcircle {
+      0% {
+        translate: 97.5px 0;
+        background: rgba(0, 0, 0, .3);
+        
+      }
+      
+      100% {
+        translate: 0 0;
+        background: rgba(255, 255, 255, .3);
+        
+      }
+    }
+    
+    @keyframes ltrday {
+      0% {
+        translate: 0 0;
+      }
+      
+      100% {
+        translate: 0 -85px;
+      }
+    }
+    
+    @keyframes rtlday {
+      0% {
+        translate: 0 -85px;
+      }
+      
+      100% {
+        translate: 0 0;
+      }
+    }
+    
+    @keyframes ltrnight {
+      0% {
+        translate: 0 -85px;
+      }
+      
+      100% {
+        translate: 0 0;
+      }
+    }
+    
+    @keyframes rtlnight {
+      0% {
+        translate: 0 0;
+      }
+      
+      100% {
+        translate: 0 -85px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="parent">
+    <div class="btn">
+      <div class="circle">NIGHT</div>
+      <input type="checkbox" class="check">
+    </div>
+    <div class="uds">
+      <div class="day"></div>
+      <div class="night"></div>
+    </div>
+  </div>
+  <script>
+    const parent = document
+      .getElementsByClassName('parent')[
+        0];
+    const box = document
+      .getElementsByClassName(
+        'check')[
+        0];
+    const circle = document
+      .getElementsByClassName(
+        'circle')[
+        0];
+    const day = document
+      .getElementsByClassName(
+        'day')[0];
+    const night = document
+      .getElementsByClassName(
+        'night')[
+        0];
+    let init = 0;
+    box
+      .addEventListener('click',
+        () => {
+          if (init == 0) {
+            circle.innerHTML = 'DAY';
+            circle.style.animation =
+              'ltrcircle ease-out .5s forwards';
+            day.style.animation =
+              'ltrday ease-out .5s forwards';
+            day.style.opacity = '100%';
+            night.style.opacity = '0%';
+            day.style.boxShadow =
+              '0 0 15px 5px white';
+            night.style.animation =
+              'ltrnight ease-out .5s forwards';
+            
+            
+            document.body.style
+              .background =
+              '#D2E7D8';
+            parent.style.background =
+              '#D2E7D8';
+            init = 1;
+          }
+          else {
+            circle.innerHTML = 'NIGHT';
+            circle.style.animation =
+              'rtlcircle ease-out .5s forwards';
+            day.style.animation =
+              'rtlday ease-out .5s forwards';
+            '';
+            day.style.opacity = '0%';
+            night.style.opacity = '100%';
+            day.style.boxShadow = '';
+            night.style.animation =
+              'rtlnight ease-out .5s forwards';
+            
+            
+            document.body.style
+              .background = '#2C3E50';
+            parent.style.background =
+              '#2C3E50';
+            init = 0;
+            
+          }
+        })
+  </script>
+</body>
+
+</html>
