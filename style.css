@@ -66,7 +66,10 @@ header .btns button {
 .aboutsec {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: 2rem;
+  gap: 1.25rem;
   animation: scrollani 5s linear;
   animation-timeline: view();
   animation-range: entry 0% cover 40%;
@@ -74,15 +77,19 @@ header .btns button {
 
 .aboutsec div h1 {
   font-size: 2.25rem;
+  text-align: center;
 }
 
 .aboutsec div p {
   font-size: 1.1rem;
+  text-align: justify;
+  padding: 1rem;
+  
 }
 
 .aboutsec img {
   border-radius: 1rem;
-  margin: 0 0 2rem 0;
+  width: 100%;
   animation: scrollani 5s linear;
   animation-timeline: view();
   animation-range: entry 0% cover 45%;
@@ -221,13 +228,11 @@ footer .contactoptions .coption ul li a i {
   }
   
   .aboutsec {
-    
     flex-direction: row;
   }
   
   .aboutsec img {
-    margin: 0 2rem 0 0;
-    width: 45%;
+    width: 50%;
     height: fit-content;
     
   }
