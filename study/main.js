@@ -1,35 +1,56 @@
-let totalChapters=92;
-let totalDays=98;
-let startingDate= '2025-09-16';
+// Declaring Variables
+let totalChapters = 92;
+let totalDays = 98;
+let startingDate = '2025-09-16';
 
 
 
 
-
-
+// Accessing Variables
 let inpt = document.querySelectorAll('input');
 let btn = document.querySelector('button');
-if (localStorage.getItem('study') == null) {
-   localStorage.setItem('study', JSON.stringify(['', '', '', '', '', '', '', '', '', '', '', '']))
-}
-else {
-   for (let i = 0; i != 12; i++) {
-      let gt = localStorage.getItem('study')
-      let each = inpt[i]
-      each.value = JSON.parse(gt)[i]
+let localData = localStorage.getItem('study');
+let parseData = JSON.parse(localData)
+
+
+
+
+// Fetching Data
+function fetchingItems() {
+   if (localData == null) {
+      localStorage.setItem('study', JSON.stringify(['', '', '', '', '', '', '', '', '', '', '', '']));
+   }
+   else {
+      for (let i = 0; i != inpt.length; i++) {
+         let each = inpt[i]
+         each.value = parseData[i]
+      }
    }
 }
+fetchingItems()
 
-function calc(a) {
+
+
+
+// Calculations 
+function doneChaptersCalculationAlg() {
+   // redeclaration 
+   let localData = localStorage.getItem('study');
+   let parseData = JSON.parse(localData)
+
+
+   let data = parseData;
    let val = '';
-   for (var i = 0; i != a.length; i++) {
-      val += '+' + `0${a[i]}`
+   for (var i = 0; i != data.length; i++) {
+      val += '+' + `0${data[i]}`
    }
    let dd = eval(val)
    return dd;
 }
 
-function countdown() {
+
+
+function countdownAlg() {
    let d1 = new Date(startingDate)
    let d2 = new Date();
    const diffTime = Math.abs(d1 - d2);
@@ -37,25 +58,68 @@ function countdown() {
    return diffDays;
 }
 
-function basics() {
-   // Tab to edit
-   document.getElementById('days').innerHTML = countdown() + `&nbsp;&nbsp; (${totalDays-countdown()} days remaining)`;
+
+
+
+// Implanting Data
+function implant() {
+   let totalChaptersDoc = [...document.getElementsByClassName('totalchapters')];
+   let remainingDaysDoc = [...document.getElementsByClassName('days')];
+   let dateDoc = [...document.getElementsByClassName('date')];
+   let doneChaptersDoc = [...document.getElementsByClassName('donechapters')];
+   let progressRateDoc = [...document.getElementsByClassName('rate')];
+
+let doneChapters = doneChaptersCalculationAlg()
+let countdown = countdownAlg();
+
    
-   document.getElementById('date').innerHTML = `${totalDays} days`;
+   totalChaptersDoc.forEach(
+      function(e) {
+         e.innerHTML = `${totalChapters}`;
+      }
+   );
    
-   document.getElementById('totalchapters').innerHTML = totalChapters;
+   remainingDaysDoc.forEach(
+      function(e) {
+         e.innerHTML = countdown + `&nbsp;&nbsp; (${totalDays-countdown} days remaining)`;
+      }
+   );
    
-   document.getElementById('donechapters').innerHTML = calc(JSON.parse(localStorage.getItem('study')));
+   dateDoc.forEach(
+      function(e) {
+         e.innerHTML = `${totalDays} days`;
+      }
+   );
    
-   document.getElementById('rate').innerHTML = parseInt(((calc(JSON.parse(localStorage.getItem('study')))/countdown())/(totalChapters/totalDays))*100);
+   doneChaptersDoc.forEach(
+      function(e) {
+         e.innerHTML = doneChapters;
+      }
+   );
+   progressRateDoc.forEach(
+      function(e) {
+         e.innerHTML = parseInt((doneChapters / (countdown / totalDays * 100)) * 100);
+      }
+   );
+   
+   
 }
-basics()
-btn.addEventListener('click', () => {
+implant()
+
+function resetInpt() {
    let obj = [];
-   for (let i = 0; i != 12; i++) {
+   for (let i = 0; i != inpt.length; i++) {
       x = inpt[i]
       obj.push(x.value)
       localStorage.setItem('study', JSON.stringify(obj))
    }
-   basics()
+}
+
+
+
+
+// Events
+btn.addEventListener('click', () => {
+   resetInpt();
+   implant()
 })
