@@ -1,7 +1,7 @@
 // Declaring Variables
 let totalChapters = 92;
 let totalDays = 98;
-let startingDate = '2025-09-16';
+let startingDate = '2025-09-15';
 
 
 
