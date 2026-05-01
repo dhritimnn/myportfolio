@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚡ Playground</title>
+<style>
+/* ── RESET & ROOT ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0c0e16;
+  --surface:      #10121c;
+  --surface2:     #14172a;
+  --border:       #1e2238;
+  --border2:      #252b45;
+  --accent:       #4d9eff;
+  --accent-dim:   #2a5a99;
+  --text:         #c0caf5;
+  --text-dim:     #565f89;
+  --text-muted:   #3b4261;
+  --gutter-bg:    #0c0e16;
+  --tab-h:        38px;
+  --bar-h:        40px;
+
+  /* Syntax */
+  --s-tag:        #f7768e;
+  --s-attr:       #ff9e64;
+  --s-string:     #9ece6a;
+  --s-comment:    #565f89;
+  --s-kw:         #bb9af7;
+  --s-num:        #ff9e64;
+  --s-fn:         #7aa2f7;
+  --s-cls:        #e0af68;
+  --s-prop:       #73daca;
+  --s-punct:      #89ddff;
+  --s-sel:        #f7768e;
+  --s-val:        #9ece6a;
+  --s-at:         #bb9af7;
+  --s-var:        #c0caf5;
+}
+
+html, body {
+  height: 100%; width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ───────────────────────────────────── */
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ── TOP BAR ──────────────────────────────────── */
+#topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--bar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 12px;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+#logo {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+#shortcuts {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.sc {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+kbd {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-family: monospace;
+  color: var(--text);
+}
+
+#run-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 13px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+#run-btn:hover { background: #6ab0ff; }
+#run-btn:active { background: var(--accent-dim); }
+
+/* ── PANES ────────────────────────────────────── */
+#panes {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── EDITOR PANE ──────────────────────────────── */
+#editor-pane {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  min-width: 120px;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+/* ── TABS ─────────────────────────────────────── */
+#tabs {
+  display: flex;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  height: var(--tab-h);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--text-dim);
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+  user-select: none;
+}
+.tab:hover { color: var(--text); background: var(--surface2); }
+.tab[data-lang="html"].active { color: var(--s-tag); border-color: var(--s-tag); background: var(--surface); }
+.tab[data-lang="css"].active  { color: var(--s-prop); border-color: var(--s-prop); background: var(--surface); }
+.tab[data-lang="js"].active   { color: var(--s-cls); border-color: var(--s-cls); background: var(--surface); }
+
+/* ── CODE PANELS ──────────────────────────────── */
+#code-panels {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel {
+  display: none;
+  position: absolute;
+  inset: 0;
+  flex-direction: row;
+}
+.panel.active { display: flex; }
+
+/* LINE NUMBERS */
+.ln {
+  width: 44px;
+  min-width: 44px;
+  background: var(--gutter-bg);
+  border-right: 1px solid var(--border);
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 12.5px;
+  line-height: 1.72;
+  color: var(--text-muted);
+  text-align: right;
+  padding: 12px 8px 12px 4px;
+  overflow: hidden;
+  user-select: none;
+  flex-shrink: 0;
+  white-space: pre;
+}
+
+/* CODE SCROLL WRAPPER */
+.code-wrap {
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  min-width: 0;
+  background: var(--surface);
+}
+
+/* SYNTAX HIGHLIGHT LAYER */
+.hl {
+  position: absolute;
+  top: 0; left: 0;
+  padding: 12px 14px;
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 12.5px;
+  line-height: 1.72;
+  white-space: pre;
+  pointer-events: none;
+  color: var(--text);
+  min-width: 100%;
+  word-break: normal;
+  overflow-wrap: normal;
+  z-index: 0;
+}
+
+/* TEXTAREA */
+.editor {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  padding: 12px 14px;
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 12.5px;
+  line-height: 1.72;
+  background: transparent;
+  color: transparent;
+  caret-color: #ffffffcc;
+  border: none;
+  outline: none;
+  resize: none;
+  white-space: pre;
+  overflow: auto;
+  tab-size: 2;
+  -webkit-text-fill-color: transparent;
+  z-index: 1;
+  spellcheck: false;
+}
+
+/* ── RESIZER ──────────────────────────────────── */
+#resizer {
+  width: 4px;
+  background: var(--border);
+  cursor: col-resize;
+  flex-shrink: 0;
+  transition: background .15s;
+  position: relative;
+  z-index: 5;
+}
+#resizer::after {
+  content: '';
+  position: absolute;
+  inset: 0 -4px;
+}
+#resizer:hover, #resizer.active { background: var(--accent); }
+
+/* ── PREVIEW PANE ─────────────────────────────── */
+#preview-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #fff;
+}
+
+#preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--tab-h);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dr  { background: #f7768e; }
+.dy  { background: #e0af68; }
+.dg  { background: #9ece6a; }
+
+#preview-label {
+  flex: 1;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: .08em;
+  text-align: center;
+}
+
+#frame {
+  flex: 1;
+  border: none;
+  width: 100%;
+  background: #fff;
+}
+
+/* ── AUTOCOMPLETE ─────────────────────────────── */
+#ac {
+  position: fixed;
+  background: #1a1d2e;
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.6);
+  z-index: 9999;
+  min-width: 190px;
+  max-width: 300px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+  padding: 4px 0;
+}
+.ac-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  cursor: pointer;
+  color: var(--text);
+}
+.ac-row:hover, .ac-row.sel {
+  background: var(--accent);
+  color: #fff;
+}
+.ac-kind {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  background: rgba(255,255,255,.15);
+  border-radius: 3px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+}
+
+/* ── TOAST ────────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%) translateY(50px);
+  background: #9ece6a;
+  color: #0c0e16;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  border-radius: 30px;
+  padding: 6px 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .22s ease, opacity .22s ease;
+  z-index: 99999;
+  white-space: nowrap;
+}
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+<div id="root">
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div id="logo">⚡ Playground</div>
+    <div id="shortcuts">
+      <div class="sc"><kbd>F1</kbd> Run</div>
+      <div class="sc"><kbd>Ctrl</kbd><kbd>S</kbd> Save</div>
+      <div class="sc"><kbd>Ctrl</kbd><kbd>F</kbd> Format</div>
+      <div class="sc"><kbd>Tab</kbd> Emmet</div>
+    </div>
+    <button id="run-btn">▶ Run</button>
+  </div>
+
+  <!-- PANES -->
+  <div id="panes">
+    <!-- EDITOR -->
+    <div id="editor-pane">
+      <div id="tabs">
+        <div class="tab active" data-lang="html">HTML</div>
+        <div class="tab" data-lang="css">CSS</div>
+        <div class="tab" data-lang="js">JS</div>
+      </div>
+      <div id="code-panels">
+        <div class="panel active" id="panel-html">
+          <div class="ln" id="ln-html"></div>
+          <div class="code-wrap" id="wrap-html">
+            <div class="hl" id="hl-html"></div>
+            <textarea class="editor" id="ed-html" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          </div>
+        </div>
+        <div class="panel" id="panel-css">
+          <div class="ln" id="ln-css"></div>
+          <div class="code-wrap" id="wrap-css">
+            <div class="hl" id="hl-css"></div>
+            <textarea class="editor" id="ed-css" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          </div>
+        </div>
+        <div class="panel" id="panel-js">
+          <div class="ln" id="ln-js"></div>
+          <div class="code-wrap" id="wrap-js">
+            <div class="hl" id="hl-js"></div>
+            <textarea class="editor" id="ed-js" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESIZER -->
+    <div id="resizer"></div>
+
+    <!-- PREVIEW -->
+    <div id="preview-pane">
+      <div id="preview-bar">
+        <div class="dot dr"></div>
+        <div class="dot dy"></div>
+        <div class="dot dg"></div>
+        <div id="preview-label">PREVIEW · Press F1 to run</div>
+      </div>
+      <iframe id="frame" sandbox="allow-scripts"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- AUTOCOMPLETE POPUP -->
+<div id="ac"></div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ══════════════════════════════════════
+   DEFAULTS
+══════════════════════════════════════ */
+const DEFAULT = {
+  html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Page</title>
+</head>
+<body>
+  <h1>Hello, Playground!</h1>
+  <p>Edit HTML, CSS, and JS then press <strong>F1</strong> to run.</p>
+</body>
+</html>`,
+  css: `body {
+  font-family: system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  background: #f0f4ff;
+  color: #1a1a2e;
+}
+
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: .5rem;
+  color: #4d9eff;
+}
+
+p {
+  font-size: 1rem;
+  color: #555;
+}`,
+  js: `// JavaScript
+console.log('Hello from Playground!');`
+};
+
+/* ══════════════════════════════════════
+   DOM
+══════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const ed    = { html: $('ed-html'), css: $('ed-css'), js: $('ed-js') };
+const hl    = { html: $('hl-html'), css: $('hl-css'), js: $('hl-js') };
+const ln    = { html: $('ln-html'), css: $('ln-css'), js: $('ln-js') };
+const wrap  = { html: $('wrap-html'), css: $('wrap-css'), js: $('wrap-js') };
+const panel = { html: $('panel-html'), css: $('panel-css'), js: $('panel-js') };
+const tabs  = document.querySelectorAll('.tab');
+const frame = $('frame');
+const ac    = $('ac');
+const toast = $('toast');
+const edPane = $('editor-pane');
+const resizer = $('resizer');
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let activeLang = 'html';
+let acList = [], acIdx = -1;
+let toastTimer = null;
+
+/* ══════════════════════════════════════
+   STORAGE
+══════════════════════════════════════ */
+function save() {
+  try {
+    localStorage.setItem('pg_html', ed.html.value);
+    localStorage.setItem('pg_css',  ed.css.value);
+    localStorage.setItem('pg_js',   ed.js.value);
+    showToast('✓ Saved');
+  } catch(e) { showToast('✗ Save failed'); }
+}
+
+function load() {
+  try {
+    ed.html.value = localStorage.getItem('pg_html') ?? DEFAULT.html;
+    ed.css.value  = localStorage.getItem('pg_css')  ?? DEFAULT.css;
+    ed.js.value   = localStorage.getItem('pg_js')   ?? DEFAULT.js;
+  } catch(e) {
+    ed.html.value = DEFAULT.html;
+    ed.css.value  = DEFAULT.css;
+    ed.js.value   = DEFAULT.js;
+  }
+  ['html','css','js'].forEach(l => { rehighlight(l); updateLN(l); });
+}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+/* ══════════════════════════════════════
+   TABS
+══════════════════════════════════════ */
+function switchTab(lang) {
+  activeLang = lang;
+  tabs.forEach(t => {
+    if (t.dataset.lang === lang) t.classList.add('active');
+    else t.classList.remove('active');
+  });
+  Object.keys(panel).forEach(l => {
+    if (l === lang) panel[l].classList.add('active');
+    else panel[l].classList.remove('active');
+  });
+  ed[lang].focus();
+}
+
+tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.lang)));
+
+/* ══════════════════════════════════════
+   RUN / PREVIEW
+══════════════════════════════════════ */
+function run() {
+  const h = ed.html.value;
+  const c = ed.css.value;
+  const j = ed.js.value;
+
+  let doc;
+  if (/<!doctype|<html/i.test(h)) {
+    // inject into existing structure
+    let d = h;
+    if (/<\/head>/i.test(d))  d = d.replace(/<\/head>/i, `<style>${c}</style></head>`);
+    else d = `<style>${c}</style>` + d;
+    if (/<\/body>/i.test(d))  d = d.replace(/<\/body>/i, `<script>\n${j}\n<\/script></body>`);
+    else d += `<script>\n${j}\n<\/script>`;
+    doc = d;
+  } else {
+    doc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${c}</style></head><body>${h}<script>\n${j}\n<\/script></body></html>`;
+  }
+
+  const blob = new Blob([doc], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  frame.src  = url;
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
+$('run-btn').addEventListener('click', run);
+
+/* ══════════════════════════════════════
+   SYNTAX HIGHLIGHTING
+   All highlighters work on raw source,
+   escape each token individually, then
+   wrap in <span>. Never regex on escaped.
+══════════════════════════════════════ */
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function span(color, text) {
+  return `<span style="color:${color}">${esc(text)}</span>`;
+}
+
+/* ── HTML highlighter (character tokenizer) ── */
+function hlHTML(src) {
+  let out = '';
+  let i = 0;
+  const len = src.length;
+
+  while (i < len) {
+    // Comment <!-- ... -->
+    if (src.startsWith('<!--', i)) {
+      const end = src.indexOf('-->', i + 4);
+      const chunk = end === -1 ? src.slice(i) : src.slice(i, end + 3);
+      out += span('var(--s-comment)', chunk);
+      i += chunk.length;
+      continue;
+    }
+    // DOCTYPE
+    if (src.startsWith('<!', i)) {
+      const end = src.indexOf('>', i);
+      const chunk = end === -1 ? src.slice(i) : src.slice(i, end + 1);
+      out += span('var(--s-comment)', chunk);
+      i += chunk.length;
+      continue;
+    }
+    // Tag
+    if (src[i] === '<') {
+      const end = src.indexOf('>', i);
+      if (end === -1) { out += esc(src.slice(i)); i = len; continue; }
+      const raw = src.slice(i, end + 1); // e.g. <div class="foo"> or </div>
+      out += tokenizeHTMLTag(raw);
+      i += raw.length;
+      continue;
+    }
+    // Plain text — collect until next <
+    const next = src.indexOf('<', i);
+    const chunk = next === -1 ? src.slice(i) : src.slice(i, next);
+    out += esc(chunk);
+    i += chunk.length;
+  }
+  return out;
+}
+
+function tokenizeHTMLTag(raw) {
+  // raw includes < and >
+  // Closing tag: </div>
+  const closeM = raw.match(/^<\/([\w-]+)>$/);
+  if (closeM) {
+    return span('var(--s-tag)', '</') + span('var(--s-tag)', closeM[1]) + span('var(--s-tag)', '>');
+  }
+
+  // Self-close or open tag
+  // Extract inner: everything between < and >
+  const inner = raw.slice(1, raw.endsWith('/>') ? -2 : -1);
+  // Tag name
+  const nameM = inner.match(/^(\/?\s*[\w-]+)/);
+  if (!nameM) return esc(raw);
+  const tagName = nameM[1];
+  let rest = inner.slice(tagName.length);
+  const selfClose = raw.endsWith('/>');
+
+  let out = span('var(--s-tag)', '<') + span('var(--s-tag)', tagName);
+  // Parse attributes
+  out += tokenizeHTMLAttrs(rest);
+  out += selfClose ? span('var(--s-tag)', '/>') : span('var(--s-tag)', '>');
+  return out;
+}
+
+function tokenizeHTMLAttrs(s) {
+  // s is the attribute string, e.g. ' class="foo" id="bar"'
+  let out = '';
+  let i = 0;
+  while (i < s.length) {
+    // Whitespace
+    if (/\s/.test(s[i])) {
+      let j = i;
+      while (j < s.length && /\s/.test(s[j])) j++;
+      out += esc(s.slice(i, j));
+      i = j; continue;
+    }
+    // Attribute name (up to = or whitespace)
+    let j = i;
+    while (j < s.length && !/[\s=]/.test(s[j])) j++;
+    const attrName = s.slice(i, j);
+    out += span('var(--s-attr)', attrName);
+    i = j;
+    // = and value
+    if (s[i] === '=') {
+      out += esc('=');
+      i++;
+      const q = s[i];
+      if (q === '"' || q === "'") {
+        let k = i + 1;
+        while (k < s.length && s[k] !== q) k++;
+        const val = s.slice(i, k + 1); // includes quotes
+        out += span('var(--s-string)', val);
+        i = k + 1;
+      } else {
+        // Unquoted value
+        let k = i;
+        while (k < s.length && !/\s/.test(s[k])) k++;
+        out += span('var(--s-string)', s.slice(i, k));
+        i = k;
+      }
+    }
+  }
+  return out;
+}
+
+/* ── CSS highlighter (line-aware tokenizer) ── */
+function hlCSS(src) {
+  // We tokenize the CSS char by char into segments
+  const tokens = [];
+  let i = 0;
+  const len = src.length;
+
+  while (i < len) {
+    // Comment
+    if (src[i] === '/' && src[i+1] === '*') {
+      const end = src.indexOf('*/', i + 2);
+      const chunk = end === -1 ? src.slice(i) : src.slice(i, end + 2);
+      tokens.push({ t: 'comment', v: chunk }); i += chunk.length; continue;
+    }
+    // String
+    if (src[i] === '"' || src[i] === "'") {
+      const q = src[i]; let j = i + 1;
+      while (j < len && src[j] !== q) { if (src[j] === '\\') j++; j++; }
+      tokens.push({ t: 'string', v: src.slice(i, j + 1) }); i = j + 1; continue;
+    }
+    // @rule keyword
+    if (src[i] === '@') {
+      let j = i + 1;
+      while (j < len && /[\w-]/.test(src[j])) j++;
+      tokens.push({ t: 'at', v: src.slice(i, j) }); i = j; continue;
+    }
+    // { } ; — structural punctuation
+    if ('{}:;'.includes(src[i])) {
+      tokens.push({ t: 'punct', v: src[i] }); i++; continue;
+    }
+    // Identifier / word
+    if (/[\w-]/.test(src[i])) {
+      let j = i;
+      while (j < len && /[\w-]/.test(src[j])) j++;
+      tokens.push({ t: 'word', v: src.slice(i, j) }); i = j; continue;
+    }
+    // Number with units
+    if (/\d/.test(src[i]) || (src[i] === '.' && /\d/.test(src[i+1]||''))) {
+      let j = i;
+      while (j < len && /[\d.]/.test(src[j])) j++;
+      // unit
+      let k = j;
+      while (k < len && /[a-zA-Z%]/.test(src[k])) k++;
+      tokens.push({ t: 'num', v: src.slice(i, k) }); i = k; continue;
+    }
+    // hex color
+    if (src[i] === '#' && /[0-9a-fA-F]/.test(src[i+1]||'')) {
+      let j = i + 1;
+      while (j < len && /[0-9a-fA-F]/.test(src[j])) j++;
+      tokens.push({ t: 'hex', v: src.slice(i, j) }); i = j; continue;
+    }
+    // Everything else (whitespace, commas, parens…)
+    tokens.push({ t: 'other', v: src[i] }); i++; continue;
+  }
+
+  // Now render with context awareness
+  // We need to know: are we in a selector, or in a property:value block?
+  let out = '';
+  let inBlock = false;  // true after {, false after }
+  let afterColon = false; // true after : inside a block
+
+  for (let ti = 0; ti < tokens.length; ti++) {
+    const tok = tokens[ti];
+    switch (tok.t) {
+      case 'comment': out += span('var(--s-comment)', tok.v); break;
+      case 'string':  out += span('var(--s-string)', tok.v); break;
+      case 'at':      out += span('var(--s-at)', tok.v); break;
+      case 'hex':     out += span('var(--s-string)', tok.v); break;
+      case 'num':     out += span('var(--s-num)', tok.v); break;
+      case 'punct':
+        if (tok.v === '{') { inBlock = true; afterColon = false; out += esc(tok.v); }
+        else if (tok.v === '}') { inBlock = false; afterColon = false; out += esc(tok.v); }
+        else if (tok.v === ':') { afterColon = inBlock; out += esc(tok.v); }
+        else if (tok.v === ';') { afterColon = false; out += esc(tok.v); }
+        else out += esc(tok.v);
+        break;
+      case 'word':
+        if (!inBlock) {
+          // selector context
+          out += span('var(--s-sel)', tok.v);
+        } else if (afterColon) {
+          // value context — check if it's a function call (next non-ws token is '(')
+          let ni = ti + 1;
+          while (ni < tokens.length && tokens[ni].t === 'other' && /\s/.test(tokens[ni].v)) ni++;
+          if (ni < tokens.length && tokens[ni].v === '(') {
+            out += span('var(--s-fn)', tok.v);
+          } else {
+            out += span('var(--s-val)', tok.v);
+          }
+        } else {
+          // property context (before :)
+          out += span('var(--s-prop)', tok.v);
+        }
+        break;
+      default: out += esc(tok.v); break;
+    }
+  }
+  return out;
+}
+
+const JS_KW = new Set([
+  'break','case','catch','class','const','continue','debugger','default','delete',
+  'do','else','export','extends','finally','for','function','if','import','in',
+  'instanceof','let','new','of','return','static','super','switch','this','throw',
+  'try','typeof','var','void','while','with','yield','async','await',
+  'true','false','null','undefined','NaN','Infinity'
+]);
+
+function hlJS(src) {
+  const tokens = [];
+  let i = 0;
+  const push = (type, val) => tokens.push({ type, val });
+
+  while (i < src.length) {
+    // Multi-line comment
+    if (src[i]==='/' && src[i+1]==='*') {
+      const end = src.indexOf('*/', i+2);
+      const chunk = end===-1 ? src.slice(i) : src.slice(i, end+2);
+      push('comment', chunk); i += chunk.length; continue;
+    }
+    // Single-line comment
+    if (src[i]==='/' && src[i+1]==='/') {
+      const end = src.indexOf('\n', i);
+      const chunk = end===-1 ? src.slice(i) : src.slice(i, end);
+      push('comment', chunk); i += chunk.length; continue;
+    }
+    // Template literal
+    if (src[i]==='`') {
+      let j = i+1;
+      while (j < src.length && src[j]!=='`') { if(src[j]==='\\') j++; j++; }
+      push('string', src.slice(i, j+1)); i = j+1; continue;
+    }
+    // Strings
+    if (src[i]==='"' || src[i]==="'") {
+      const q = src[i]; let j = i+1;
+      while (j < src.length && src[j]!==q) { if(src[j]==='\\') j++; j++; }
+      push('string', src.slice(i, j+1)); i = j+1; continue;
+    }
+    // RegExp (very approximate)
+    if (src[i]==='/' && i>0 && /[=({,!&|?:;[\n]/.test(src[i-1]??'\n')) {
+      let j = i+1;
+      while (j < src.length && src[j]!=='/' && src[j]!=='\n') { if(src[j]==='\\') j++; j++; }
+      if (j < src.length && src[j]==='/') {
+        while (j < src.length && /[gimsuy]/.test(src[j+1])) j++;
+        push('string', src.slice(i, j+1)); i = j+1; continue;
+      }
+    }
+    // Numbers
+    if (/\d/.test(src[i]) || (src[i]==='.' && /\d/.test(src[i+1]||''))) {
+      let j = i;
+      while (j < src.length && /[\d._x]/.test(src[j])) j++;
+      push('num', src.slice(i, j)); i = j; continue;
+    }
+    // Identifiers / keywords
+    if (/[a-zA-Z_$]/.test(src[i])) {
+      let j = i;
+      while (j < src.length && /[\w$]/.test(src[j])) j++;
+      const word = src.slice(i, j);
+      // Check if it's a function call
+      const afterWS = src.slice(j).trimStart();
+      if (JS_KW.has(word)) push('kw', word);
+      else if (afterWS[0]==='(') push('fn', word);
+      else if (/^[A-Z]/.test(word)) push('cls', word);
+      else push('ident', word);
+      i = j; continue;
+    }
+    // Punctuation/operators
+    if (/[{}()[\];,.+\-*/%=<>!&|^~?:]/.test(src[i])) {
+      push('punct', src[i]); i++; continue;
+    }
+    push('other', src[i]); i++; continue;
+  }
+
+  // Render
+  return tokens.map(t => {
+    const v = esc(t.val);
+    switch(t.type) {
+      case 'comment': return `<span style="color:var(--s-comment);font-style:italic">${v}</span>`;
+      case 'string':  return `<span style="color:var(--s-string)">${v}</span>`;
+      case 'kw':      return `<span style="color:var(--s-kw)">${v}</span>`;
+      case 'fn':      return `<span style="color:var(--s-fn)">${v}</span>`;
+      case 'cls':     return `<span style="color:var(--s-cls)">${v}</span>`;
+      case 'num':     return `<span style="color:var(--s-num)">${v}</span>`;
+      case 'punct':   return `<span style="color:var(--s-punct)">${v}</span>`;
+      case 'ident':   return `<span style="color:var(--s-var)">${v}</span>`;
+      default:        return v;
+    }
+  }).join('');
+}
+
+function rehighlight(lang) {
+  const code = ed[lang].value;
+  let html;
+  if (lang === 'html') html = hlHTML(code);
+  else if (lang === 'css') html = hlCSS(code);
+  else html = hlJS(code);
+  hl[lang].innerHTML = html + '\n'; // prevent collapse on last line
+}
+
+/* ══════════════════════════════════════
+   LINE NUMBERS
+══════════════════════════════════════ */
+function updateLN(lang) {
+  const count = ed[lang].value.split('\n').length;
+  let s = '';
+  for (let i = 1; i <= count; i++) s += i + '\n';
+  ln[lang].textContent = s;
+}
+
+/* ══════════════════════════════════════
+   SCROLL SYNC
+══════════════════════════════════════ */
+function syncScroll(lang) {
+  const ta = ed[lang];
+  const h  = hl[lang];
+  const g  = ln[lang];
+  h.style.transform = `translate(${-ta.scrollLeft}px, ${-ta.scrollTop}px)`;
+  g.scrollTop = ta.scrollTop;
+}
+
+/* ══════════════════════════════════════
+   EMMET TABLE
+══════════════════════════════════════ */
+const EMMET = {
+  html: {
+    '!':          `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Document</title>\n</head>\n<body>\n  \n</body>\n</html>`,
+    'html:5':     `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Document</title>\n</head>\n<body>\n  \n</body>\n</html>`,
+    'a':          `<a href="">$C$</a>`,
+    'a:blank':    `<a href="" target="_blank" rel="noopener">$C$</a>`,
+    'img':        `<img src="" alt="$C$">`,
+    'input':      `<input type="text" name="$C$" id="">`,
+    'input:text': `<input type="text" name="$C$" id="">`,
+    'input:pass': `<input type="password" name="$C$" id="">`,
+    'input:email':`<input type="email" name="$C$" id="">`,
+    'input:check':`<input type="checkbox" name="$C$" id="">`,
+    'btn':        `<button type="button">$C$</button>`,
+    'button':     `<button type="button">$C$</button>`,
+    'form':       `<form action="" method="post">\n  $C$\n</form>`,
+    'select':     `<select name="$C$" id="">\n  <option value=""></option>\n</select>`,
+    'textarea':   `<textarea name="$C$" id="" rows="4" cols="50"></textarea>`,
+    'label':      `<label for="$C$"></label>`,
+    'ul':         `<ul>\n  <li>$C$</li>\n</ul>`,
+    'ol':         `<ol>\n  <li>$C$</li>\n</ol>`,
+    'li':         `<li>$C$</li>`,
+    'dl':         `<dl>\n  <dt>$C$</dt>\n  <dd></dd>\n</dl>`,
+    'table':      `<table>\n  <thead>\n    <tr>\n      <th>$C$</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td></td>\n    </tr>\n  </tbody>\n</table>`,
+    'div':        `<div>$C$</div>`,
+    'p':          `<p>$C$</p>`,
+    'span':       `<span>$C$</span>`,
+    'h1':         `<h1>$C$</h1>`,
+    'h2':         `<h2>$C$</h2>`,
+    'h3':         `<h3>$C$</h3>`,
+    'h4':         `<h4>$C$</h4>`,
+    'h5':         `<h5>$C$</h5>`,
+    'h6':         `<h6>$C$</h6>`,
+    'section':    `<section>\n  $C$\n</section>`,
+    'article':    `<article>\n  $C$\n</article>`,
+    'header':     `<header>\n  $C$\n</header>`,
+    'footer':     `<footer>\n  $C$\n</footer>`,
+    'main':       `<main>\n  $C$\n</main>`,
+    'nav':        `<nav>\n  $C$\n</nav>`,
+    'aside':      `<aside>\n  $C$\n</aside>`,
+    'figure':     `<figure>\n  <img src="$C$" alt="">\n  <figcaption></figcaption>\n</figure>`,
+    'details':    `<details>\n  <summary>$C$</summary>\n  <p></p>\n</details>`,
+    'video':      `<video src="$C$" controls></video>`,
+    'audio':      `<audio src="$C$" controls></audio>`,
+    'canvas':     `<canvas id="$C$" width="300" height="150"></canvas>`,
+    'script':     `<script>\n  $C$\n<\/script>`,
+    'style':      `<style>\n  $C$\n</style>`,
+    'link':       `<link rel="stylesheet" href="$C$">`,
+    'meta':       `<meta name="$C$" content="">`,
+    'br':         `<br>`,
+    'hr':         `<hr>`,
+    'lorem':      `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. $C$`,
+  },
+  css: {
+    'df':  `display: flex;`, 'dg': `display: grid;`, 'db': `display: block;`,
+    'di':  `display: inline;`, 'dib': `display: inline-block;`, 'dn': `display: none;`,
+    'fdc': `flex-direction: column;`, 'fdr': `flex-direction: row;`,
+    'fww': `flex-wrap: wrap;`, 'fw1': `flex: 1;`,
+    'aic': `align-items: center;`, 'aifs': `align-items: flex-start;`, 'aife': `align-items: flex-end;`,
+    'jcc': `justify-content: center;`, 'jcsb': `justify-content: space-between;`,
+    'jcsa': `justify-content: space-around;`, 'jcse': `justify-content: space-evenly;`,
+    'jcfs': `justify-content: flex-start;`, 'jcfe': `justify-content: flex-end;`,
+    'gap': `gap: $C$;`,
+    'm':   `margin: $C$;`, 'mt': `margin-top: $C$;`, 'mb': `margin-bottom: $C$;`,
+    'ml':  `margin-left: $C$;`, 'mr': `margin-right: $C$;`, 'mx': `margin: 0 $C$;`, 'my': `margin: $C$ 0;`,
+    'p':   `padding: $C$;`, 'pt': `padding-top: $C$;`, 'pb': `padding-bottom: $C$;`,
+    'pl':  `padding-left: $C$;`, 'pr': `padding-right: $C$;`, 'px': `padding: 0 $C$;`, 'py': `padding: $C$ 0;`,
+    'w':   `width: $C$;`, 'h': `height: $C$;`, 'wf': `width: 100%;`, 'hf': `height: 100%;`,
+    'mw':  `max-width: $C$;`, 'mh': `max-height: $C$;`, 'minw': `min-width: $C$;`, 'minh': `min-height: $C$;`,
+    'bg':  `background: $C$;`, 'bgc': `background-color: $C$;`,
+    'c':   `color: $C$;`, 'fs': `font-size: $C$;`, 'fw': `font-weight: $C$;`,
+    'ff':  `font-family: $C$;`, 'lh': `line-height: $C$;`, 'ls': `letter-spacing: $C$;`,
+    'ta':  `text-align: $C$;`, 'tac': `text-align: center;`, 'tal': `text-align: left;`, 'tar': `text-align: right;`,
+    'td':  `text-decoration: $C$;`, 'tdn': `text-decoration: none;`, 'tdu': `text-decoration: underline;`,
+    'tt':  `text-transform: $C$;`, 'ttu': `text-transform: uppercase;`,
+    'pos': `position: $C$;`, 'posa': `position: absolute;`, 'posr': `position: relative;`,
+    'posf': `position: fixed;`, 'poss': `position: sticky;`,
+    'top': `top: $C$;`, 'bot': `bottom: $C$;`, 'lft': `left: $C$;`, 'rgt': `right: $C$;`,
+    'br':  `border-radius: $C$;`, 'bo': `border: $C$;`, 'bon': `border: none;`,
+    'bs':  `box-shadow: $C$;`, 'ts': `text-shadow: $C$;`,
+    'op':  `opacity: $C$;`, 'cur': `cursor: pointer;`, 'ov': `overflow: $C$;`,
+    'ovh': `overflow: hidden;`, 'ovs': `overflow: scroll;`, 'ova': `overflow: auto;`,
+    'z':   `z-index: $C$;`, 'tr': `transition: $C$;`, 'ani': `animation: $C$;`,
+    'out': `outline: none;`, 'lis': `list-style: none;`,
+    'grid2': `display: grid;\ngrid-template-columns: repeat(2, 1fr);\ngap: 1rem;`,
+    'grid3': `display: grid;\ngrid-template-columns: repeat(3, 1fr);\ngap: 1rem;`,
+    'abs-center': `position: absolute;\ntop: 50%;\nleft: 50%;\ntransform: translate(-50%, -50%);`,
+    'flex-center': `display: flex;\nalign-items: center;\njustify-content: center;`,
+  },
+  js: {
+    'cl':    `console.log($C$);`,
+    'ce':    `console.error($C$);`,
+    'cw':    `console.warn($C$);`,
+    'ci':    `console.info($C$);`,
+    'fn':    `function $C$() {\n  \n}`,
+    'afn':   `const $C$ = () => {\n  \n};`,
+    'afn2':  `const $C$ = (a, b) => {\n  \n};`,
+    'iife':  `(function () {\n  $C$\n})();`,
+    'qs':    `document.querySelector('$C$')`,
+    'qsa':   `document.querySelectorAll('$C$')`,
+    'gel':   `document.getElementById('$C$')`,
+    'gcl':   `document.getElementsByClassName('$C$')`,
+    'gtn':   `document.getElementsByTagName('$C$')`,
+    'cel':   `document.createElement('$C$')`,
+    'ael':   `element.addEventListener('$C$', function (e) {\n  \n});`,
+    'si':    `setInterval(function () {\n  $C$\n}, 1000);`,
+    'st':    `setTimeout(function () {\n  $C$\n}, 1000);`,
+    'raf':   `requestAnimationFrame(function loop() {\n  $C$\n  requestAnimationFrame(loop);\n});`,
+    'fe':    `array.forEach(function (item, i) {\n  $C$\n});`,
+    'map':   `array.map(function (item) {\n  return $C$;\n});`,
+    'filt':  `array.filter(function (item) {\n  return $C$;\n});`,
+    'red':   `array.reduce(function (acc, item) {\n  return $C$;\n}, 0);`,
+    'find':  `array.find(function (item) {\n  return $C$;\n});`,
+    'some':  `array.some(function (item) {\n  return $C$;\n});`,
+    'pr':    `new Promise(function (resolve, reject) {\n  $C$\n});`,
+    'async': `async function $C$() {\n  try {\n    \n  } catch (err) {\n    console.error(err);\n  }\n}`,
+    'awt':   `const $C$ = await fetch('');\nconst data = await $C$.json();`,
+    'class': `class $C$ {\n  constructor() {\n    \n  }\n}`,
+    'imp':   `import $C$ from '';`,
+    'exp':   `export default $C$;`,
+    'expn':  `export { $C$ };`,
+    'tc':    `try {\n  $C$\n} catch (err) {\n  console.error(err);\n}`,
+    'if':    `if ($C$) {\n  \n}`,
+    'ife':   `if ($C$) {\n  \n} else {\n  \n}`,
+    'sw':    `switch ($C$) {\n  case '':\n    break;\n  default:\n    break;\n}`,
+    'for':   `for (let i = 0; i < $C$; i++) {\n  \n}`,
+    'forin': `for (const key in $C$) {\n  \n}`,
+    'forof': `for (const item of $C$) {\n  \n}`,
+    'wh':    `while ($C$) {\n  \n}`,
+    'ls':    `localStorage.setItem('$C$', '');`,
+    'lg':    `localStorage.getItem('$C$')`,
+  }
+};
+
+/* ══════════════════════════════════════
+   EMMET EXPAND
+══════════════════════════════════════ */
+function getWordBefore(ta) {
+  const s = ta.selectionStart;
+  const before = ta.value.slice(0, s);
+  const lineStart = before.lastIndexOf('\n') + 1;
+  const line = before.slice(lineStart);
+  const indent = line.match(/^(\s*)/)[1];
+  const word = line.trimStart();
+  return { word, indent, lineStart, cursorPos: s };
+}
+
+function applySnippet(ta, word, indent, lineStart, snippet) {
+  const s = ta.selectionStart;
+  const before = ta.value.slice(0, lineStart + indent.length);
+  const after  = ta.value.slice(s);
+  const lines  = snippet.split('\n');
+  const expanded = lines.map((l, i) => i === 0 ? l : indent + l).join('\n');
+  const cursorIdx = expanded.indexOf('$C$');
+  const clean = expanded.replace('$C$', '');
+  ta.value = before + clean + after;
+  const newPos = before.length + (cursorIdx >= 0 ? cursorIdx : clean.length);
+  ta.setSelectionRange(newPos, newPos);
+}
+
+function tryEmmet(ta, lang) {
+  const { word, indent, lineStart, cursorPos } = getWordBefore(ta);
+  if (!word) return false;
+
+  const table = EMMET[lang];
+
+  // HTML: .classname or tag.classname → <div class="...">
+  if (lang === 'html') {
+    // .class1.class2 → <div class="class1 class2">
+    let m = word.match(/^([\w-]*)(\.[.\w-]+)$/);
+    if (m) {
+      const tag = m[1] || 'div';
+      const classes = m[2].slice(1).split('.').join(' ');
+      applySnippet(ta, word, indent, lineStart, `<${tag} class="${classes}">$C$</${tag}>`);
+      return true;
+    }
+    // #id or tag#id → <div id="...">
+    m = word.match(/^([\w-]*)#([\w-]+)$/);
+    if (m) {
+      const tag = m[1] || 'div';
+      applySnippet(ta, word, indent, lineStart, `<${tag} id="${m[2]}">$C$</${tag}>`);
+      return true;
+    }
+    // tag> (child shorthand)
+    m = word.match(/^([\w-]+)>$/);
+    if (m) {
+      applySnippet(ta, word, indent, lineStart, `<${m[1]}>\n  $C$\n</${m[1]}>`);
+      return true;
+    }
+    // bare tagname
+    m = word.match(/^([\w-]+)$/);
+    if (m && table[m[1]]) {
+      applySnippet(ta, word, indent, lineStart, table[word]);
+      return true;
+    }
+  }
+
+  if (table[word]) {
+    applySnippet(ta, word, indent, lineStart, table[word]);
+    return true;
+  }
+  return false;
+}
+
+/* ══════════════════════════════════════
+   AUTOCOMPLETE POPUP
+══════════════════════════════════════ */
+let acBound = null; // current textarea for AC
+
+function buildAC(lang, word, ta) {
+  if (!word || word.length < 1) { hideAC(); return; }
+  const table = EMMET[lang];
+  const matches = Object.keys(table)
+    .filter(k => k !== word && k.startsWith(word))
+    .slice(0, 12)
+    .map(k => ({ key: k, snippet: table[k] }));
+  // Also add HTML class/id hints
+  if (lang === 'html' && word.includes('.')) matches.unshift({ key: word + ' → class', snippet: null });
+  if (!matches.length) { hideAC(); return; }
+  showAC(matches, lang, ta, word);
+}
+
+function showAC(items, lang, ta, word) {
+  acList = items;
+  acIdx  = 0;
+  acBound = { ta, word };
+  ac.innerHTML = '';
+  items.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'ac-row' + (i === 0 ? ' sel' : '');
+    row.innerHTML = `<span>${item.key}</span><span class="ac-kind">${lang}</span>`;
+    row.addEventListener('mousedown', e => { e.preventDefault(); pickAC(i); });
+    ac.appendChild(row);
+  });
+  ac.style.display = 'block';
+  positionAC(ta);
+}
+
+function hideAC() {
+  ac.style.display = 'none';
+  acList = []; acIdx = -1; acBound = null;
+}
+
+function positionAC(ta) {
+  const rect = ta.getBoundingClientRect();
+  const lh = 12.5 * 1.72; // font-size * line-height
+  const s = ta.selectionStart;
+  const before = ta.value.slice(0, s);
+  const lineN  = before.split('\n').length - 1;
+  const col    = before.length - before.lastIndexOf('\n') - 1;
+  const x = rect.left + 44 + col * 7.5 - ta.scrollLeft;
+  const y = rect.top + lineN * lh - ta.scrollTop + lh + 2;
+  const vpW = window.innerWidth, vpH = window.innerHeight;
+  ac.style.left = Math.min(x, vpW - 210) + 'px';
+  ac.style.top  = (y + 200 > vpH ? y - 220 : y) + 'px';
+}
+
+function acNavRow(dir) {
+  const rows = ac.querySelectorAll('.ac-row');
+  if (!rows.length) return;
+  rows[acIdx]?.classList.remove('sel');
+  acIdx = (acIdx + dir + rows.length) % rows.length;
+  rows[acIdx]?.classList.add('sel');
+  rows[acIdx]?.scrollIntoView({ block:'nearest' });
+}
+
+function pickAC(idx) {
+  if (!acBound) return;
+  const item = acList[idx ?? acIdx];
+  if (!item || !item.snippet) { hideAC(); return; }
+  const { ta } = acBound;
+  const { word, indent, lineStart } = getWordBefore(ta);
+  applySnippet(ta, word, indent, lineStart, item.snippet);
+  rehighlight(activeLang);
+  updateLN(activeLang);
+  hideAC();
+}
+
+/* ══════════════════════════════════════
+   FORMATTER
+══════════════════════════════════════ */
+function formatHTML(code) {
+  const VOID = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+  const PRE  = new Set(['pre','script','style','textarea']);
+  const lines = [];
+  let indent = 0;
+  const IND = '  ';
+  // tokenize on tag boundaries
+  const parts = code.split(/(<[^>]+>)/);
+  for (const part of parts) {
+    const t = part.trim();
+    if (!t) continue;
+    if (/^<!--/.test(t)) { lines.push(IND.repeat(indent) + t); continue; }
+    if (/^<\//.test(t)) {
+      const tag = (t.match(/<\/([\w-]+)/) || [])[1];
+      if (!PRE.has(tag)) indent = Math.max(0, indent - 1);
+      lines.push(IND.repeat(indent) + t);
+    } else if (/^</.test(t)) {
+      const tag = (t.match(/<([\w-]+)/) || [])[1];
+      lines.push(IND.repeat(indent) + t);
+      if (tag && !VOID.has(tag) && !/\/>$/.test(t) && !PRE.has(tag) && !/<\//.test(t)) indent++;
+    } else {
+      t.split('\n').filter(l => l.trim()).forEach(l => lines.push(IND.repeat(indent) + l.trim()));
+    }
+  }
+  return lines.join('\n');
+}
+
+function formatCSS(code) {
+  return code
+    .replace(/\s*\{\s*/g, ' {\n  ')
+    .replace(/;\s*(?=[^\n}])/g, ';\n  ')
+    .replace(/\s*\}\s*/g, '\n}\n\n')
+    .replace(/  \n\}/g, '\n}')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function formatJS(code) {
+  const IND = '  ';
+  let indent = 0;
+  const out = [];
+  for (let line of code.split('\n')) {
+    const t = line.trim();
+    if (!t) { out.push(''); continue; }
+    const closes = (t.match(/[\}\]\)]/g) || []).length;
+    const opens  = (t.match(/[\{\[\(]/g) || []).length;
+    if (closes > opens) indent = Math.max(0, indent - (closes - opens));
+    out.push(IND.repeat(indent) + t);
+    if (opens > closes) indent += opens - closes;
+  }
+  return out.join('\n');
+}
+
+function format(lang) {
+  const ta = ed[lang];
+  if (lang === 'html') ta.value = formatHTML(ta.value);
+  else if (lang === 'css') ta.value = formatCSS(ta.value);
+  else ta.value = formatJS(ta.value);
+  rehighlight(lang);
+  updateLN(lang);
+  showToast('✓ Formatted');
+}
+
+/* ══════════════════════════════════════
+   AUTO-PAIRS
+══════════════════════════════════════ */
+const PAIRS = { '(':')', '[':']', '{':'}', '"':'"', "'":"'", '`':'`' };
+const CLOSE_SET = new Set([')', ']', '}']);
+
+function handleAutoPair(ta, key) {
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  if (PAIRS[key]) {
+    const close = PAIRS[key];
+    if (s !== e) {
+      // Wrap selection
+      ta.value = ta.value.slice(0,s) + key + ta.value.slice(s,e) + close + ta.value.slice(e);
+      ta.setSelectionRange(s+1, e+1);
+    } else {
+      ta.value = ta.value.slice(0,s) + key + close + ta.value.slice(s);
+      ta.setSelectionRange(s+1, s+1);
+    }
+    return true;
+  }
+  if (CLOSE_SET.has(key) && ta.value[s] === key) {
+    ta.setSelectionRange(s+1, s+1);
+    return true;
+  }
+  return false;
+}
+
+/* ══════════════════════════════════════
+   EDITOR KEY HANDLER
+══════════════════════════════════════ */
+function onKeydown(lang, e) {
+  const ta = ed[lang];
+  const ctrl = e.ctrlKey || e.metaKey;
+
+  // Global shortcuts
+  if (e.key === 'F1')                      { e.preventDefault(); run(); return; }
+  if (ctrl && e.key === 's')               { e.preventDefault(); save(); return; }
+  if (ctrl && e.key === 'f' && !e.shiftKey){ e.preventDefault(); format(lang); return; }
+
+  // AC navigation
+  if (ac.style.display === 'block') {
+    if (e.key === 'ArrowDown')  { e.preventDefault(); acNavRow(1); return; }
+    if (e.key === 'ArrowUp')    { e.preventDefault(); acNavRow(-1); return; }
+    if (e.key === 'Enter')      { e.preventDefault(); pickAC(); return; }
+    if (e.key === 'Escape')     { hideAC(); return; }
+  }
+
+  // Tab → emmet or indent
+  if (e.key === 'Tab' && !e.shiftKey) {
+    e.preventDefault();
+    if (!tryEmmet(ta, lang)) {
+      const s = ta.selectionStart, end = ta.selectionEnd;
+      if (s === end) {
+        ta.value = ta.value.slice(0,s) + '  ' + ta.value.slice(s);
+        ta.setSelectionRange(s+2, s+2);
+      } else {
+        const lb = ta.value.lastIndexOf('\n', s-1) + 1;
+        const sel = ta.value.slice(lb, end);
+        const indented = sel.split('\n').map(l => '  ' + l).join('\n');
+        ta.value = ta.value.slice(0,lb) + indented + ta.value.slice(end);
+        ta.setSelectionRange(lb, lb + indented.length);
+      }
+    }
+    rehighlight(lang); updateLN(lang); hideAC(); return;
+  }
+
+  // Shift+Tab → dedent
+  if (e.key === 'Tab' && e.shiftKey) {
+    e.preventDefault();
+    const s = ta.selectionStart, end = ta.selectionEnd;
+    const lb = ta.value.lastIndexOf('\n', s-1) + 1;
+    const sel = ta.value.slice(lb, end);
+    const dedented = sel.split('\n').map(l => l.replace(/^  /, '')).join('\n');
+    ta.value = ta.value.slice(0,lb) + dedented + ta.value.slice(end);
+    ta.setSelectionRange(lb, lb + dedented.length);
+    rehighlight(lang); updateLN(lang); return;
+  }
+
+  // Auto-pairs (only opening brackets)
+  if ('([{"\'`'.includes(e.key)) {
+    // Don't pair in CSS content values for ' (too noisy)
+    e.preventDefault();
+    handleAutoPair(ta, e.key);
+    rehighlight(lang); updateLN(lang); return;
+  }
+  // Skip over closing pair
+  if (CLOSE_SET.has(e.key)) {
+    const s = ta.selectionStart;
+    if (ta.value[s] === e.key) {
+      e.preventDefault();
+      ta.setSelectionRange(s+1, s+1);
+      return;
+    }
+  }
+
+  // Smart Enter: auto-indent + brace handling
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const s = ta.selectionStart;
+    const before = ta.value.slice(0, s);
+    const lineStart = before.lastIndexOf('\n') + 1;
+    const line = before.slice(lineStart);
+    const indent = line.match(/^(\s*)/)[1];
+    const lastCh = before.trim().slice(-1);
+    const nextCh = ta.value[s];
+    const after  = ta.value.slice(s);
+
+    if ((lastCh === '{' || lastCh === '[' || lastCh === '(') &&
+        (nextCh === '}' || nextCh === ']' || nextCh === ')')) {
+      const inner = '\n' + indent + '  ';
+      const outer = '\n' + indent;
+      ta.value = before + inner + outer.trimEnd() + after;
+      ta.setSelectionRange(s + inner.length, s + inner.length);
+    } else {
+      const extra = (lastCh === '{' || lastCh === '[' || lastCh === '(') ? '  ' : '';
+      const ins = '\n' + indent + extra;
+      ta.value = before + ins + after;
+      ta.setSelectionRange(s + ins.length, s + ins.length);
+    }
+    rehighlight(lang); updateLN(lang); hideAC(); return;
+  }
+
+  // Backspace: delete pair
+  if (e.key === 'Backspace') {
+    const s = ta.selectionStart;
+    if (ta.selectionStart === ta.selectionEnd && s > 0) {
+      const prev = ta.value[s-1];
+      const next = ta.value[s];
+      if (PAIRS[prev] && PAIRS[prev] === next) {
+        e.preventDefault();
+        ta.value = ta.value.slice(0,s-1) + ta.value.slice(s+1);
+        ta.setSelectionRange(s-1, s-1);
+        rehighlight(lang); updateLN(lang); return;
+      }
+    }
+  }
+}
+
+/* ══════════════════════════════════════
+   BIND EDITORS
+══════════════════════════════════════ */
+['html','css','js'].forEach(lang => {
+  const ta = ed[lang];
+
+  ta.addEventListener('keydown', e => onKeydown(lang, e));
+
+  ta.addEventListener('input', () => {
+    rehighlight(lang);
+    updateLN(lang);
+    // AC
+    const { word } = getWordBefore(ta);
+    buildAC(lang, word, ta);
+  });
+
+  ta.addEventListener('scroll', () => syncScroll(lang));
+
+  ta.addEventListener('click', hideAC);
+  ta.addEventListener('blur', () => setTimeout(hideAC, 130));
+
+  ta.addEventListener('keyup', e => {
+    if (!['ArrowDown','ArrowUp','Enter','Escape','Tab'].includes(e.key)) {
+      const { word } = getWordBefore(ta);
+      buildAC(lang, word, ta);
+    }
+  });
+});
+
+/* ══════════════════════════════════════
+   GLOBAL KEY BINDINGS (outside editors)
+══════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'F1') { e.preventDefault(); run(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(); }
+});
+
+/* ══════════════════════════════════════
+   RESIZER DRAG
+══════════════════════════════════════ */
+let dragging = false, startX = 0, startW = 0;
+
+resizer.addEventListener('mousedown', e => {
+  dragging = true; startX = e.clientX;
+  startW = edPane.getBoundingClientRect().width;
+  resizer.classList.add('active');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+});
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const total = document.getElementById('panes').clientWidth;
+  const newW  = Math.min(Math.max(startW + e.clientX - startX, 120), total - 120);
+  edPane.style.width = newW + 'px';
+});
+document.addEventListener('mouseup', () => {
+  dragging = false;
+  resizer.classList.remove('active');
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+});
+
+resizer.addEventListener('touchstart', e => {
+  dragging = true; startX = e.touches[0].clientX;
+  startW = edPane.getBoundingClientRect().width;
+}, { passive: true });
+document.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  const total = document.getElementById('panes').clientWidth;
+  const newW  = Math.min(Math.max(startW + e.touches[0].clientX - startX, 120), total - 120);
+  edPane.style.width = newW + 'px';
+}, { passive: true });
+document.addEventListener('touchend', () => { dragging = false; });
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+load();
+switchTab('html');
+
+// Deferred run so frame is ready
+setTimeout(run, 80);
+
+})();
+</script>
+</body>
+</html>
